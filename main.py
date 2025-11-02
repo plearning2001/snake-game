@@ -2,28 +2,38 @@ import time
 import pygame
 from pygame.locals import *
 
+# Size of each block (snake + apple)
+SIZE = 40
+
 class Game:
     def __init__(self):
-        self.surface = pygame.display.set_mode((800,500))
         pygame.init()
-        self.snake = Snake(self.surface,2)
+        self.surface = pygame.display.set_mode((800, 500))
+        pygame.display.set_caption("Snake Game")
+
+        self.snake = Snake(self.surface, 4)
+        self.apple = Apple(self.surface)
         self.snake.draw()
-    
+        self.apple.draw()
+
+    def play(self):
+        self.snake.walk()
+        self.apple.draw()
+        pygame.display.flip()
+
     def run(self):
         running = True
+        clock = pygame.time.Clock()
 
         while running:
             for event in pygame.event.get():
                 if event.type == QUIT:
                     running = False
-                
-                elif event.type == KEYDOWN:
-                    # print(f"block_x -- {block_x}")
-                    # print(f"block_y -- {block_y}\n")
 
+                elif event.type == KEYDOWN:
                     if event.key == K_ESCAPE:
                         running = False
-                
+
                     elif event.key == K_DOWN:
                         self.snake.move_down()
 
@@ -36,77 +46,71 @@ class Game:
                     elif event.key == K_LEFT:
                         self.snake.move_left()
 
-            time.sleep(0.02)
-            self.snake.walk()
-
+            self.play()
+            clock.tick(7)  # smoother control instead of time.sleep()
 
 
 class Snake:
+    def __init__(self, parent_screen, length):
+        self.parent_screen = parent_screen
+        self.block = pygame.image.load("images/snake_block.png").convert_alpha()
+        self.block = pygame.transform.scale(self.block, (SIZE, SIZE))
 
-    def __init__(self,paarent_screen,length):
-        self.parent_screen = paarent_screen
-        # self.x = 100
-        self.x = [40]*length
-        # self.y = 100
-        self.y = [40]*length
+        self.length = length
+        self.x = [SIZE] * length
+        self.y = [SIZE] * length
 
-        screen_width = 500
-        screen_height = 500
-        surface = pygame.display.set_mode((screen_width,screen_height))
-        pygame.display.set_caption("Move the block")
-        block_x = 10
-        block_y = 10
-        self.block = pygame.Surface((block_x, block_y))
-        self.block.fill((255, 0, 0))
-
-        self.direction = "up"
+        self.direction = "right"
 
     def draw(self):
-        self.parent_screen.fill((0, 0, 0))  # Clear screen
-        self.parent_screen.blit(self.block,(self.x,self.y))
-        pygame.display.flip()        
+        self.parent_screen.fill((0, 0, 0))
+        for i in range(self.length):
+            self.parent_screen.blit(self.block, (self.x[i], self.y[i]))
+        pygame.display.flip()
 
     def move_up(self):
-        # self.y = self.y - 10
-        # self.draw()
         self.direction = "up"
 
     def move_down(self):
-        # self.y = self.y + 10
-        # self.draw()
         self.direction = "down"
 
     def move_right(self):
-        # self.x = self.x + 10
-        # self.draw()
         self.direction = "right"
 
     def move_left(self):
-        # self.x = self.x - 10
-        # self.draw()
         self.direction = "left"
-    
+
     def walk(self):
+        # move body
+        for i in range(self.length - 1, 0, -1):
+            self.x[i] = self.x[i - 1]
+            self.y[i] = self.y[i - 1]
+
+        # move head
         if self.direction == "left":
-            self.x -= 10
-
+            self.x[0] -= SIZE
         elif self.direction == "right":
-            self.x += 10
-
+            self.x[0] += SIZE
         elif self.direction == "up":
-            self.y -= 10
-
+            self.y[0] -= SIZE
         elif self.direction == "down":
-            self.y += 10
+            self.y[0] += SIZE
+
         self.draw()
 
-def draw_block(surface,block,block_x,block_y):
-    surface.fill((0, 0, 0))  # Clear screen
-    surface.blit(block,(block_x,block_y))
-    pygame.display.flip()
+
+class Apple:
+    def __init__(self, parent_screen):
+        self.parent_screen = parent_screen
+        self.image = pygame.image.load("images/apple.jpg").convert_alpha()
+        self.image = pygame.transform.scale(self.image, (SIZE, SIZE))
+        self.x = SIZE * 5
+        self.y = SIZE * 5
+
+    def draw(self):
+        self.parent_screen.blit(self.image, (self.x, self.y))
+
 
 if __name__ == "__main__":
-    pygame.init()
-
     game = Game()
     game.run()
