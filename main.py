@@ -1,3 +1,4 @@
+import random
 import time
 import pygame
 from pygame.locals import *
@@ -11,7 +12,7 @@ class Game:
         self.surface = pygame.display.set_mode((800, 500))
         pygame.display.set_caption("Snake Game")
 
-        self.snake = Snake(self.surface, 4)
+        self.snake = Snake(self.surface, 1)
         self.apple = Apple(self.surface)
         self.snake.draw()
         self.apple.draw()
@@ -29,6 +30,11 @@ class Game:
         pygame.display.flip()
 
         if self.is_collision(self.snake.x[0], self.snake.y[0], self.apple.x, self.apple.y):
+            self.snake.length += 1
+            self.snake.x.append(-1)
+            self.snake.y.append(-1)
+
+            self.apple.move()
 
             print("colision...........k")
         else:
@@ -129,6 +135,10 @@ class Apple:
 
     def draw(self):
         self.parent_screen.blit(self.image, (self.x, self.y))
+    
+    def move(self):
+        self.x = random.randint(1,5)*40
+        self.y = random.randint(1,5)*40
 
 
 if __name__ == "__main__":
