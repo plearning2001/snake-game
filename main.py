@@ -17,6 +17,7 @@ class Game:
         self.snake.draw()
         self.apple.draw()
 
+    
     def is_collision(self,x1,y1,x2,y2):
         if x1>=x2 and x1<x2+SIZE:
             if y1>=y2 and y1<y2+SIZE:
@@ -27,8 +28,10 @@ class Game:
     def play(self):
         self.snake.walk()
         self.apple.draw()
+        self.display_score()
         pygame.display.flip()
 
+        # Apple colllision
         if self.is_collision(self.snake.x[0], self.snake.y[0], self.apple.x, self.apple.y):
             self.snake.length += 1
             self.snake.x.append(-1)
@@ -36,12 +39,20 @@ class Game:
 
             self.apple.move()
 
+        for i in range(2,self.snake.length):
+            if self.is_collision(self.snake.x[0], self.snake.y[0], self.snake.x[i], self.snake.x[i]):
+                print("!!!Game Over!!!")
+                exit(0)
+
             print("colision...........k")
         else:
             print("pass...........k")
         
 
-
+    def display_score(self):
+        font = pygame.font.SysFont('arial',15)
+        score = font.render(f"Score : {self.snake.length}",True,(255,255,255))
+        self.surface.blit(score,(0,10))
 
 
     def run(self):
@@ -70,7 +81,7 @@ class Game:
                         self.snake.move_left()
 
             self.play()
-            clock.tick(7) 
+            clock.tick(3) 
 
 
 
@@ -95,22 +106,32 @@ class Snake:
         pygame.display.flip()
 
     def move_up(self):
-        self.direction = "up"
+        if self.direction != 'down':
+            self.direction = "up"
 
     def move_down(self):
-        self.direction = "down"
+        if self.direction != 'up':
+            self.direction = "down"
 
     def move_right(self):
-        self.direction = "right"
+        if self.direction != 'left':
+            self.direction = "right"
 
     def move_left(self):
-        self.direction = "left"
+        if self.direction != 'right':
+            self.direction = "left"
 
     def walk(self):
         # move body
+        print("Moving")
         for i in range(self.length - 1, 0, -1):
             self.x[i] = self.x[i - 1]
             self.y[i] = self.y[i - 1]
+
+        print(f"x - y : {self.x} - {self.y}")
+        if self.x[0] >= 800 or self.x[0] <= 0 or self.y[0] >= 460 or self.y[0] <= 0:
+            print("Game over!!!")
+            exit(0)
 
         # move head
         if self.direction == "left":
