@@ -8,8 +8,10 @@ SIZE = 40
 
 class Game:
     def __init__(self):
+        self.window_x = 800
+        self.window_y = 500
         pygame.init()
-        self.surface = pygame.display.set_mode((800, 500))
+        self.surface = pygame.display.set_mode((self.window_x, self.window_y))
         pygame.display.set_caption("Snake Game")
 
         self.snake = Snake(self.surface, 1)
@@ -50,9 +52,9 @@ class Game:
         
 
     def display_score(self):
-        font = pygame.font.SysFont('arial',15)
+        font = pygame.font.SysFont('arial',20)
         score = font.render(f"Score : {self.snake.length}",True,(255,255,255))
-        self.surface.blit(score,(0,10))
+        self.surface.blit(score,(700,10))
 
 
     def run(self):
@@ -92,7 +94,7 @@ class Snake:
         self.parent_screen = parent_screen
         self.block = pygame.image.load("images/snake_block.png").convert_alpha()
         self.block = pygame.transform.scale(self.block, (SIZE, SIZE))
-
+        self.surface = parent_screen
         self.length = length
         self.x = [SIZE] * length
         self.y = [SIZE] * length
@@ -124,12 +126,16 @@ class Snake:
     def walk(self):
         # move body
         print("Moving")
+        self.window_x, self.window_y = self.surface.get_size()
+        print(f"Neww -- {self.window_x} -- {self.window_y}")
+
         for i in range(self.length - 1, 0, -1):
             self.x[i] = self.x[i - 1]
             self.y[i] = self.y[i - 1]
 
+        
         print(f"x - y : {self.x} - {self.y}")
-        if self.x[0] >= 800 or self.x[0] <= 0 or self.y[0] >= 460 or self.y[0] <= 0:
+        if self.x[0] >= self.window_x or self.x[0] <= 0 or self.y[0] >= self.window_y or self.y[0] <= 0:
             print("Game over!!!")
             exit(0)
 
